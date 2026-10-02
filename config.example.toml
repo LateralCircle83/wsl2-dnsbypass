@@ -1,0 +1,60 @@
+# dnsbypass 配置示例：复制成 config.toml（同目录）或 ~/.config/dnsbypass/config.toml 即生效。
+# 全部字段都可省略；省略即用内置默认。优先级：命令行参数 > 配置文件 > 内置默认。
+
+# ── DoH 出口 ────────────────────────────────────────────────────────────
+# 本机实测（2026-10，镜像网络模式）：
+#   * dns.google / cloudflare / quad9 / adguard / opendns 的 443 与 853 全部不可直连
+#   * ControlD 76.76.2.0、NextDNS 45.90.28.0、HiNet 168.95.1.1、Yandex 77.88.8.8 的 443 可直连
+# 因此默认用 dns.google + 强制走 HTTP 代理（CONNECT 带域名，由出口节点解析）。
+doh_url = "https://dns.google/dns-query"
+# doh_url = "https://dns.nextdns.io/dns-query"
+# doh_url = "https://freedns.controld.com/p0"
+
+timeout = 8.0             # 单次 DoH 请求超时（秒）
+doh_retries = 1           # DoH 瞬时失败（TLS 握手超时等）重试次数；仍失败才走明文兜底
+ttl_cap = 300            # 缓存 TTL 上限（秒）；上游给更大也按这个压
+default_ttl = 30         # 上游没给 TTL 时用这个
+cache_max_entries = 4096
+
+# ── 代理（"真实代理入口"）──────────────────────────────────────────────
+# 留空 = 用环境里的 http_proxy/https_proxy（WSL autoProxy 会自动注入）；
+#       sudo 下环境被 env_reset 清空时，会自动扫 /proc 从调用者进程找回。
+# 填了就覆盖环境，最可预测，尤其适合 sudo --port 53 的场合：
+# upstream_proxy = "http://127.0.0.1:65532"
+upstream_proxy = ""
+force_proxy_for_doh = true   # 即使 no_proxy 命中 DoH 域名，这一跳也强制走代理
+require_proxy = true         # 没代理时 preflight 直接判失败（本环境里是事实）
+
+# ── 本地监听 ────────────────────────────────────────────────────────────
+listen_host = "127.0.0.1"
+listen_port = 5353       # 免权限；bind 接管时才需要 53
+bind_port = 53
+# 接管用的环回地址：镜像模式下 127.0.0.1:53 归 Windows 侧，包会被吞；
+# 127.0.0.2 / 127.0.0.55 实测可用（NAT 模式下用 127.0.0.1 也行）。
+bind_host = "127.0.0.2"
+
+# ── 接管 resolv.conf ───────────────────────────────────────────────────
+# 空列表 = 自动把原 resolv.conf 里的解析器留作保命兜底（排除 127.0.0.1）。
+fallback_nameservers = []
+# fallback_nameservers = ["10.255.255.254"]
+# 冷启动首查约 0.3–1.3s，1s 会让 glibc 提前翻到被投毒的第二个 nameserver
+resolvconf_options = "timeout:2 attempts:1"
+# 状态目录（绑定记录/审计报告/引擎状态与日志）。
+# 留空 = <代码所在目录>/state；相对路径一律相对**代码所在目录**（不是 cwd）。
+# 也可用环境变量 DNSBYPASS_STATE_DIR，或全局参数 --state-dir（优先级：CLI > 本文件 > 环境变量）。
+# state_dir = "state"
+
+# ── 审计 ────────────────────────────────────────────────────────────────
+# canary：预期被投毒的靶子；任一被投毒即判"污染"
+canary_domains = [
+    "www.google.com", "www.youtube.com", "x.com", "www.wikipedia.org",
+    "www.reddit.com", "www.instagram.com", "www.dropbox.com",
+    "www.nytimes.com", "signal.org", "www.bbc.com",
+]
+# control：预期可达且干净的对照组；它们也不一致说明结论不可信
+control_domains = ["www.baidu.com", "www.taobao.com", "github.com", "www.qq.com"]
+core_domains = ["www.google.com", "www.youtube.com", "www.wikipedia.org"]
+light_max = 2
+
+# 需要额外审计的域名（也可用 `dnsbypass audit --domains a,b` 临时加）
+# extra_domains = ["example.com"]

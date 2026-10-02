@@ -1,0 +1,13 @@
+# 运行时状态（引擎日志、绑定记录、resolv.conf 备份）—— 不能进版本库
+state/
+config.toml
+
+# Python
+__pycache__/
+*.pyc
+.arch-probe-state/
+
+# 杂项
+*.log
+*.tmp
+.DS_Store
