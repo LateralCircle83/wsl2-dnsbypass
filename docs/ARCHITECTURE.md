@@ -380,7 +380,7 @@ repair_source                    （repair 时：用的是 target_backup 还是�
 | 命令 | 需要 root | 覆盖 |
 |---|---|---|
 | `python3 tests/architecture.py` | 否 | 分层/依赖方向、INV 断言、退出码、help 覆盖、零依赖、无写死路径 |
-| `tests/resolvconf-sandbox.sh` | 否 | 25 项：首次 bind / 托管中重复 bind / unbind / 伪造坏记录被拒(40) / repair / repair 幂等 / 旧固定名 tmp 不挡写入（全在 `mktemp` 沙箱，不碰系统文件） |
+| `tests/resolvconf-sandbox.sh` | 否 | 28 项：首次 bind / 托管中重复 bind / unbind / 伪造坏记录被拒(40) / repair / repair 幂等 / 旧固定名 tmp 不挡写入（全在 `mktemp` 沙箱，不碰系统文件） |
 | `sudo tests/full-stack.sh` | 是 | 真机 8 段：起点 md5 → 起引擎(53) → bind（不写穿目标）→ 端到端解析 + audit 判定 → 代理那一路 204 → `kill -9` 保命线 → 重复 bind 三项不变 → unbind+stop 逐字节还原（`trap` 保证收尾一定回滚） |
 
 验收基线：`/etc/resolv.conf` → `/mnt/wsl/resolv.conf` 的符号链接，两文件

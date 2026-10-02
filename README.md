@@ -258,7 +258,7 @@ WSL 自己生成的原文，本机 200 字节、md5 `ccd28ae0776549eb3926db2148a
 
 ```bash
 python3 tests/architecture.py   # 架构守护：依赖方向、退出码、帮助覆盖、不变量（无需 root）
-tests/resolvconf-sandbox.sh     # 25 项检查：bind / 重复 bind / unbind / 坏记录被拒 / repair / 幂等（无需 root）
+tests/resolvconf-sandbox.sh     # 28 项检查：bind / 重复 bind / unbind / 坏记录被拒 / repair / 幂等（无需 root）
 sudo tests/full-stack.sh        # 真机全栈终测：起引擎(53) → bind → 端到端解析 → 代理那一路
                                 #   → kill -9 保命线 → 重复 bind 安全性 → unbind+stop → 逐字节回滚校验
                                 #   （trap 保证无论如何都回滚）
