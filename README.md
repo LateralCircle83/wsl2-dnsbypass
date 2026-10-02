@@ -320,3 +320,10 @@ UDP+TCP、源码里不许出现写死的家目录路径……）。**改代码�
 * `audit` 对 **anycast/CDN** 域名可能误报"污染"：例如 `x.com` 的 DoH 真值
   `162.159.140.229` 与本地 `172.66.0.227` 同为 Cloudflare 不同节点，属正常差异。
   对照组（control）只看"是否命中假 IP 黑名单"，canary 的 mismatch 只是提示，判定看整体分级。
+
+## 许可
+
+MIT License，见 [LICENSE](LICENSE)。Copyright (c) 2026 LateralCircle83。
+
+这个项目解决的问题不难遇到、修法却互不相同，欢迎直接拿走改；如果它帮你省了一个下午，
+回去给你的 `resolv.conf` 也留一条明文兜底。
